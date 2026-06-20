@@ -1,0 +1,31 @@
+# Деплой на Render (https://render.com) — Infrastructure as Code.
+# Подключите репозиторий, Render прочитает этот файл автоматически.
+services:
+  - type: web
+    name: developer-landing-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: AI_PROVIDER
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false        # секрет задаётся в дашборде Render
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: CORS_ALLOW_ORIGINS
+        value: "*"
+      - key: OWNER_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alex Volkov — Backend Developer · API & AI</title>
+<meta name="description" content="Бэкенд-разработчик: надёжные API, чистая архитектура и AI там, где это приносит пользу." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#05060d; --bg-2:#080a16;
+    --ink:#eef1fb; --muted:#9aa3c4; --faint:#586089;
+    --violet:#a78bfa; --violet-2:#7c3aed; --cyan:#34e3ff; --pink:#ff7ac6;
+    --line:rgba(255,255,255,.09);
+    --card:rgba(255,255,255,.025);
+    --ok:#34d399; --warn:#fbbf24; --bad:#fb7185;
+    --grad:linear-gradient(120deg,#a78bfa 0%,#34e3ff 55%,#7c3aed 100%);
+    --grad-soft:linear-gradient(120deg,rgba(167,139,250,.18),rgba(52,227,255,.14));
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Inter",-apple-system,"Segoe UI",sans-serif;
+    line-height:1.6; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(167,139,250,.35);color:#fff}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:"Space Grotesk",sans-serif;font-weight:600;letter-spacing:-.02em;line-height:1.05;margin:0}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  /* ---------- фоновые слои ---------- */
+  .bg{position:fixed;inset:0;z-index:-3;overflow:hidden}
+  .blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;mix-blend-mode:screen}
+  .b1{width:620px;height:620px;background:#6d28d9;top:-200px;left:-120px;animation:drift1 22s ease-in-out infinite}
+  .b2{width:560px;height:560px;background:#0891b2;top:-80px;right:-140px;animation:drift2 26s ease-in-out infinite}
+  .b3{width:520px;height:520px;background:#be185d;bottom:-220px;left:30%;animation:drift3 30s ease-in-out infinite}
+  @keyframes drift1{50%{transform:translate(120px,90px) scale(1.1)}}
+  @keyframes drift2{50%{transform:translate(-100px,120px) scale(1.05)}}
+  @keyframes drift3{50%{transform:translate(80px,-90px) scale(1.12)}}
+  .grid-bg{position:fixed;inset:0;z-index:-2;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:64px 64px;mask-image:radial-gradient(circle at 50% 0,#000 0,transparent 72%);opacity:.5}
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  .spot{position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(380px circle at var(--mx,50%) var(--my,30%),rgba(120,150,255,.10),transparent 60%);transition:background .15s}
+
+  .wrap{max-width:1140px;margin:0 auto;padding:0 26px}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    background:linear-gradient(180deg,rgba(5,6,13,.82),rgba(5,6,13,.35));border-bottom:1px solid transparent}
+  nav.scrolled{border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk";font-weight:600}
+  .mark{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;
+    font-weight:700;color:#0a0a12;box-shadow:0 0 24px rgba(124,58,237,.5)}
+  .nav-links{display:flex;gap:30px;font-size:14.5px;color:var(--muted)}
+  .nav-links a{transition:color .2s}.nav-links a:hover{color:var(--ink)}
+  .nav-cta{font-size:14px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);
+    color:var(--ink);transition:.2s;background:var(--card)}
+  .nav-cta:hover{border-color:rgba(167,139,250,.6);box-shadow:0 0 22px rgba(167,139,250,.25)}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* ---------- hero ---------- */
+  header{padding:78px 0 40px;position:relative}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);
+    padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);margin-bottom:26px}
+  .live{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(52,211,153,.7);animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}70%{box-shadow:0 0 0 9px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  h1.title{font-size:clamp(40px,6.4vw,70px);font-weight:700}
+  .title .g{background:var(--grad);background-size:200% auto;-webkit-background-clip:text;background-clip:text;
+    color:transparent;animation:shift 6s linear infinite}
+  @keyframes shift{to{background-position:200% center}}
+  .lead{color:var(--muted);font-size:18.5px;max-width:520px;margin:24px 0 34px}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+  .btn{position:relative;display:inline-flex;align-items:center;gap:9px;font-size:15.5px;font-weight:500;
+    padding:14px 24px;border-radius:13px;cursor:pointer;border:none;transition:transform .12s ease;font-family:inherit}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{color:#0a0a12;background:var(--grad);background-size:200% auto;
+    box-shadow:0 10px 40px -10px rgba(124,58,237,.7);overflow:hidden}
+  .btn-primary::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:shine 4.5s infinite}
+  @keyframes shine{0%,60%{left:-120%}100%{left:160%}}
+  .btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:rgba(52,227,255,.5)}
+  .stats{display:flex;gap:34px;margin-top:44px}
+  .stat .n{font-family:"Space Grotesk";font-size:27px;font-weight:600;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:12.5px;color:var(--faint);letter-spacing:.02em}
+  @media(max-width:880px){.hero{grid-template-columns:1fr;gap:40px}.lead{max-width:none}}
+
+  /* ---------- терминал ---------- */
+  .term{border-radius:16px;background:linear-gradient(180deg,rgba(16,18,32,.95),rgba(9,11,22,.95));
+    border:1px solid var(--line);box-shadow:0 40px 90px -30px rgba(0,0,0,.8),0 0 0 1px rgba(167,139,250,.06);
+    overflow:hidden;transform:perspective(1400px) rotateY(-7deg) rotateX(3deg);transition:transform .25s ease}
+  .term:hover{transform:perspective(1400px) rotateY(0) rotateX(0)}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:13px 15px;border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.02)}
+  .dot{width:12px;height:12px;border-radius:50%}.r{background:#ff5f56}.y{background:#ffbd2e}.g{background:#27c93f}
+  .term-title{margin-left:10px;font-size:12.5px;color:var(--faint)}
+  .term-body{padding:20px;font-family:"JetBrains Mono",monospace;font-size:13.3px;line-height:1.85;min-height:330px}
+  .prompt{color:var(--cyan)} .cmd{color:var(--ink)} .flag{color:var(--violet)}
+  .k{color:#7dd3fc}.s{color:#86efac}.num{color:#fbbf24}.b{color:var(--pink)}.c{color:var(--faint)}
+  .cursor{display:inline-block;width:8px;height:16px;background:var(--cyan);vertical-align:-3px;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .ln{opacity:0;transform:translateY(4px);transition:.3s}.ln.show{opacity:1;transform:none}
+
+  section{padding:90px 0;position:relative}
+  .sec-tag{font-size:13px;font-family:"JetBrains Mono";color:var(--violet);letter-spacing:.08em;text-transform:uppercase}
+  .sec-h{font-size:clamp(28px,4vw,42px);font-weight:600;margin:14px 0 0}
+  .sec-sub{color:var(--muted);font-size:17px;max-width:560px;margin-top:14px}
+
+  /* ---------- marquee ---------- */
+  .marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);overflow:hidden}
+  .track{display:flex;gap:54px;width:max-content;animation:roll 26s linear infinite;font-family:"Space Grotesk";
+    font-size:21px;color:var(--faint);font-weight:500}
+  .track span{display:flex;align-items:center;gap:54px}
+  .track b{color:var(--muted);font-weight:600}
+  @keyframes roll{to{transform:translateX(-50%)}}
+
+  /* ---------- bento ---------- */
+  .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:18px;margin-top:50px}
+  .cell{position:relative;border:1px solid var(--line);border-radius:18px;padding:26px;
+    background:var(--card);overflow:hidden;transition:.3s}
+  .cell::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;
+    background:var(--grad-soft);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:.3s}
+  .cell:hover{transform:translateY(-4px);background:rgba(255,255,255,.045)}
+  .cell:hover::before{opacity:1}
+  .c-wide{grid-column:span 4}.c-mid{grid-column:span 3}.c-sm{grid-column:span 2}
+  .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:18px;
+    background:var(--grad-soft);border:1px solid var(--line)}
+  .ic svg{width:23px;height:23px;stroke:var(--violet);fill:none;stroke-width:1.6}
+  .cell h3{font-size:19px;margin-bottom:8px}
+  .cell p{color:var(--muted);font-size:14.5px;margin:0}
+  .cell .big{font-family:"Space Grotesk";font-size:40px;font-weight:600;line-height:1;margin-bottom:6px;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  @media(max-width:880px){.bento{grid-template-columns:repeat(2,1fr)}.c-wide,.c-mid,.c-sm{grid-column:span 2}}
+
+  /* ---------- pipeline ---------- */
+  .pipe{margin-top:54px;border:1px solid var(--line);border-radius:20px;padding:40px 30px;background:var(--card);position:relative}
+  .pipe-row{display:flex;align-items:stretch;justify-content:space-between;gap:10px;position:relative;flex-wrap:wrap}
+  .step{flex:1;min-width:150px;text-align:center;position:relative;z-index:2}
+  .step .num{width:48px;height:48px;margin:0 auto 14px;border-radius:14px;display:grid;place-items:center;
+    font-family:"JetBrains Mono";font-weight:700;color:#0a0a12;background:var(--grad);
+    box-shadow:0 8px 26px -8px rgba(124,58,237,.7)}
+  .step h4{font-size:15.5px;margin:0 0 5px;font-family:"Space Grotesk";font-weight:600}
+  .step p{font-size:12.5px;color:var(--muted);margin:0}
+  .pipe-line{position:absolute;top:64px;left:8%;right:8%;height:2px;
+    background:linear-gradient(90deg,transparent,var(--line) 10%,var(--line) 90%,transparent);z-index:1}
+  .pipe-line::after{content:"";position:absolute;top:-1px;left:0;width:60px;height:4px;border-radius:4px;
+    background:var(--grad);filter:blur(.4px);box-shadow:0 0 14px var(--violet);animation:flow 4s linear infinite}
+  @keyframes flow{0%{left:0}100%{left:100%}}
+  @media(max-width:760px){.pipe-line{display:none}}
+
+  /* ---------- contact ---------- */
+  .contact{display:grid;grid-template-columns:.85fr 1.15fr;gap:48px;align-items:start;margin-top:48px}
+  .form-card{border:1px solid var(--line);border-radius:22px;padding:32px;background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015))}
+  .field{position:relative;margin-top:18px}
+  .field input,.field textarea{width:100%;padding:16px 15px 6px;border-radius:13px;background:rgba(8,10,20,.7);
+    border:1px solid var(--line);color:var(--ink);font-size:15px;font-family:inherit;transition:.2s}
+  .field textarea{min-height:120px;resize:vertical}
+  .field input:focus,.field textarea:focus{outline:none;border-color:rgba(167,139,250,.7);
+    box-shadow:0 0 0 4px rgba(167,139,250,.12)}
+  .field label{position:absolute;left:15px;top:14px;font-size:15px;color:var(--faint);pointer-events:none;
+    transition:.16s ease;transform-origin:left}
+  .field input:focus+label,.field input:not(:placeholder-shown)+label,
+  .field textarea:focus+label,.field textarea:not(:placeholder-shown)+label{
+    top:7px;font-size:11px;color:var(--violet)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .hp{position:absolute;left:-9999px;opacity:0}
+  .ferr{color:var(--bad);font-size:12.5px;margin-top:5px;min-height:14px}
+  #submit-btn{width:100%;margin-top:24px;justify-content:center}
+  #submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+  .result{margin-top:22px;border-radius:18px;padding:0;overflow:hidden;max-height:0;opacity:0;transition:.45s ease}
+  .result.show{max-height:640px;opacity:1}
+  .result-in{padding:22px;border:1px solid var(--line);border-radius:18px;background:rgba(8,10,20,.6)}
+  .result.ok .result-in{border-color:rgba(52,211,153,.4)}
+  .result.err .result-in{border-color:rgba(251,113,133,.45)}
+  .res-head{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk";font-weight:600;font-size:17px;margin-bottom:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chip{font-size:12.5px;font-family:"JetBrains Mono";padding:6px 12px;border-radius:999px;
+    background:var(--grad-soft);border:1px solid var(--line);color:var(--ink)}
+  .meter-l{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:6px}
+  .meter{height:8px;border-radius:999px;background:linear-gradient(90deg,#fb7185,#9aa3c4 50%,#34d399);position:relative}
+  .meter .mk{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;
+    border:3px solid var(--violet-2);transform:translateX(-50%);transition:left 1s cubic-bezier(.2,.8,.2,1);box-shadow:0 2px 10px rgba(0,0,0,.5)}
+  .reply{margin-top:16px;padding:15px;border-radius:13px;background:rgba(167,139,250,.08);
+    border-left:3px solid var(--violet);font-size:14.5px;color:var(--ink)}
+  .reply b{color:var(--violet);font-size:12px;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+  .meta-line{margin-top:14px;font-family:"JetBrains Mono";font-size:11.5px;color:var(--faint);display:flex;gap:14px;flex-wrap:wrap}
+
+  .info-side h3{font-size:24px;margin-bottom:14px}
+  .info-side p{color:var(--muted)}
+  .info-list{margin-top:24px;display:flex;flex-direction:column;gap:14px}
+  .info-item{display:flex;gap:13px;align-items:flex-start}
+  .info-item .d{width:34px;height:34px;border-radius:10px;background:var(--grad-soft);border:1px solid var(--line);
+    display:grid;place-items:center;flex-shrink:0}
+  .info-item .d svg{width:17px;height:17px;stroke:var(--cyan);fill:none;stroke-width:1.7}
+  .info-item b{font-family:"Space Grotesk";font-weight:600}
+  .info-item span{display:block;color:var(--muted);font-size:13.5px}
+  @media(max-width:880px){.contact{grid-template-columns:1fr}}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--faint);font-size:14px}
+  .foot-in{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+  .foot-in a{color:var(--muted)}.foot-in a:hover{color:var(--ink)}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+  <div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="grid-bg"></div><div class="spot"></div><div class="grain"></div>
+
+  <nav id="nav"><div class="wrap nav-in">
+    <div class="logo"><div class="mark">A</div> Alex Volkov</div>
+    <div class="nav-links">
+      <a href="#work">Чем занимаюсь</a>
+      <a href="#flow">Как устроено</a>
+      <a href="/docs">API</a>
+      <a href="#contact">Контакты</a>
+    </div>
+    <a href="#contact" class="nav-cta">Обсудить проект</a>
+  </div></nav>
+
+  <header><div class="wrap hero">
+    <div>
+      <span class="eyebrow"><span class="live"></span> Открыт для новых проектов · отвечаю за 24ч</span>
+      <h1 class="title">Бэкенд, который<br>не подводит.<br><span class="g">API · AI · архитектура.</span></h1>
+      <p class="lead">Я — Alex, backend-разработчик. Проектирую надёжные REST-сервисы с чистой архитектурой,
+        вдумчивой обработкой ошибок и AI-инструментами там, где они реально решают задачу.</p>
+      <div class="cta-row">
+        <a href="#contact" class="btn btn-primary">Связаться со мной
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0a0a12" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="/docs" class="btn btn-ghost">Живой API → Swagger</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">6+</div><div class="l">лет в backend</div></div>
+        <div class="stat"><div class="n">120ms</div><div class="l">p95 latency</div></div>
+        <div class="stat"><div class="n">99.9%</div><div class="l">аптайм сервисов</div></div>
+      </div>
+    </div>
+
+    <div class="term reveal">
+      <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="term-title mono">contact-api — zsh</span></div>
+      <div class="term-body" id="term"></div>
+    </div>
+  </div></header>
+
+  <div class="marquee"><div class="track">
+    <span><b>Python</b> · <b>FastAPI</b> · <b>PostgreSQL</b> · <b>Redis</b> · <b>Docker</b> · <b>OpenAI</b> · <b>REST / OpenAPI</b> · <b>Pydantic</b> · </span>
+    <span><b>Python</b> · <b>FastAPI</b> · <b>PostgreSQL</b> · <b>Redis</b> · <b>Docker</b> · <b>OpenAI</b> · <b>REST / OpenAPI</b> · <b>Pydantic</b> · </span>
+  </div></div>
+
+  <section id="work"><div class="wrap">
+    <div class="reveal"><span class="sec-tag">// что я делаю</span>
+      <h2 class="sec-h">Инженерия, а не «лишь бы работало»</h2>
+      <p class="sec-sub">Каждый сервис — это архитектура, тесты, наблюдаемость и защита. Вот из чего складывается результат.</p></div>
+
+    <div class="bento">
+      <div class="cell c-wide reveal">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4zM3 12l9 4 9-4M3 17l9 4 9-4"/></svg></div>
+        <h3>Слоистая архитектура</h3>
+        <p>Controllers → Services → Repositories. Каждый слой тестируется изолированно, зависимости — через DI. Код читается как проза, а не как лабиринт.</p>
+      </div>
+      <div class="cell c-sm reveal">
+        <div class="big">27</div><h3>тестов</h3>
+        <p>pytest на каждый сценарий: валидация, rate limit, fallback.</p>
+      </div>
+      <div class="cell c-sm reveal">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 3v4M15 3v4M5 8h14v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2zM9 13h6M9 17h4"/></svg></div>
+        <h3>RESTful API</h3><p>Корректные статус-коды, единый формат ошибок, авто-документация OpenAPI.</p>
+      </div>
+      <div class="cell c-mid reveal">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.8 7.1 17l.9-5.4L4 7.7l5.4-.8z"/></svg></div>
+        <h3>AI там, где полезно</h3>
+        <p>LLM анализирует тональность, классифицирует обращение и пишет черновик ответа — с rule-based fallback, если AI недоступен.</p>
+      </div>
+      <div class="cell c-mid reveal">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7zM9 12l2 2 4-4"/></svg></div>
+        <h3>Надёжность и защита</h3>
+        <p>Rate limiting, honeypot, санитизация, глобальный error handler и структурное логирование с request_id.</p>
+      </div>
+    </div>
+  </div></section>
+
+  <section id="flow"><div class="wrap">
+    <div class="reveal"><span class="sec-tag">// полный цикл обращения</span>
+      <h2 class="sec-h">Запрос проходит весь путь</h2>
+      <p class="sec-sub">Ни один этап не пропущен — от валидации до ответа. Именно так обрабатывается каждое сообщение с этой формы.</p></div>
+
+    <div class="pipe reveal">
+      <div class="pipe-line"></div>
+      <div class="pipe-row">
+        <div class="step"><div class="num">1</div><h4>Запрос</h4><p>POST /api/contact</p></div>
+        <div class="step"><div class="num">2</div><h4>Валидация</h4><p>Pydantic + санитизация</p></div>
+        <div class="step"><div class="num">3</div><h4>AI-анализ</h4><p>тон · класс · ответ</p></div>
+        <div class="step"><div class="num">4</div><h4>Письма</h4><p>владельцу + копия</p></div>
+        <div class="step"><div class="num">5</div><h4>Ответ</h4><p>201 + insight</p></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section id="contact"><div class="wrap">
+    <div class="reveal"><span class="sec-tag">// напишите мне</span>
+      <h2 class="sec-h">Расскажите о задаче</h2>
+      <p class="sec-sub">Форма реально работает: она отправляет запрос на тот же backend и сразу показывает результат AI-анализа.</p></div>
+
+    <div class="contact">
+      <div class="info-side reveal">
+        <h3>Что произойдёт после отправки</h3>
+        <p>Никаких заглушек. Вы увидите, как сервис обрабатывает обращение в реальном времени.</p>
+        <div class="info-list">
+          <div class="info-item"><div class="d"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg></div>
+            <div><b>Мгновенный AI-разбор</b><span>тональность, категория и приоритет вашего сообщения</span></div></div>
+          <div class="info-item"><div class="d"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg></div>
+            <div><b>Два письма</b><span>уведомление мне и подтверждение вам</span></div></div>
+          <div class="info-item"><div class="d"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z"/></svg></div>
+            <div><b>Ответ за 24 часа</b><span>обычно — гораздо быстрее</span></div></div>
+        </div>
+      </div>
+
+      <div class="form-card reveal">
+        <form id="contact-form" novalidate>
+          <div class="row2">
+            <div class="field"><input id="name" name="name" type="text" placeholder=" " autocomplete="name" />
+              <label for="name">Имя</label><div class="ferr" data-err="name"></div></div>
+            <div class="field"><input id="email" name="email" type="email" placeholder=" " autocomplete="email" />
+              <label for="email">Email</label><div class="ferr" data-err="email"></div></div>
+          </div>
+          <div class="field"><input id="phone" name="phone" type="tel" placeholder=" " autocomplete="tel" />
+            <label for="phone">Телефон</label><div class="ferr" data-err="phone"></div></div>
+          <div class="field"><textarea id="comment" name="comment" placeholder=" "></textarea>
+            <label for="comment">Сообщение</label><div class="ferr" data-err="comment"></div></div>
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <button type="submit" id="submit-btn" class="btn btn-primary">Отправить обращение
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0a0a12" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </form>
+        <div class="result" id="result"><div class="result-in" id="result-in"></div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <footer><div class="wrap foot-in">
+    <div class="logo"><div class="mark">A</div> Alex Volkov · Backend Developer</div>
+    <div>Построено на FastAPI · <a href="/docs">Swagger</a> · <a href="/api/health">health</a> · <a href="/api/metrics">metrics</a></div>
+  </div></footer>
+
+<script>
+  /* спотлайт за курсором + тильт терминала */
+  const term=document.querySelector('.term');
+  window.addEventListener('pointermove',e=>{
+    document.documentElement.style.setProperty('--mx',e.clientX+'px');
+    document.documentElement.style.setProperty('--my',e.clientY+'px');
+  });
+
+  /* nav border on scroll */
+  const nav=document.getElementById('nav');
+  addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>10));
+
+  /* reveal on scroll */
+  const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* печать в терминале */
+  const termEl=document.getElementById('term');
+  const lines=[
+    {h:'<span class="prompt">$</span> <span class="cmd">curl -X POST https://api.alexvolkov.dev<span class="flag">/api/contact</span> \\</span>',d:0},
+    {h:'<span class="cmd c">   -H "Content-Type: application/json" -d \'{ "name": "Maria", ... }\'</span>',d:30},
+    {h:'<span class="c">↳ 201 Created · 128ms</span>',d:60},
+    {h:'<span class="b">{</span>',d:60},
+    {h:'  <span class="k">"success"</span>: <span class="b">true</span>,',d:30},
+    {h:'  <span class="k">"analysis"</span>: <span class="b">{</span>',d:30},
+    {h:'    <span class="k">"category"</span>: <span class="s">"project_inquiry"</span>,',d:30},
+    {h:'    <span class="k">"sentiment"</span>: <span class="s">"positive"</span>, <span class="k">"score"</span>: <span class="num">0.82</span>,',d:30},
+    {h:'    <span class="k">"priority"</span>: <span class="s">"high"</span>,',d:30},
+    {h:'    <span class="k">"provider"</span>: <span class="s">"openai"</span>,',d:30},
+    {h:'    <span class="k">"suggested_reply"</span>: <span class="s">"Здравствуйте, Maria! С радостью…"</span>',d:30},
+    {h:'  <span class="b">}</span>,',d:30},
+    {h:'  <span class="k">"processing_ms"</span>: <span class="num">128</span>',d:30},
+    {h:'<span class="b">}</span><span class="cursor"></span>',d:30},
+  ];
+  let li=0;
+  function typeLines(){
+    if(li>=lines.length)return;
+    const el=document.createElement('div');el.className='ln';el.innerHTML=lines[li].h;termEl.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    li++;setTimeout(typeLines,420+lines[Math.min(li,lines.length-1)].d*4);
+  }
+  setTimeout(typeLines,500);
+
+  /* ---------- форма → реальный API ---------- */
+  const API_URL="/api/contact";
+  const form=document.getElementById("contact-form");
+  const btn=document.getElementById("submit-btn");
+  const result=document.getElementById("result");
+  const resultIn=document.getElementById("result-in");
+  const CAT={collaboration:"🤝 Сотрудничество",hiring:"💼 Вакансия",project_inquiry:"🚀 Заказ проекта",support:"💬 Поддержка",spam:"🚫 Спам",other:"📩 Прочее"};
+  const SENT={positive:"позитив",neutral:"нейтрально",negative:"негатив"};
+
+  function clearErrors(){document.querySelectorAll(".ferr").forEach(e=>e.textContent="");}
+  function showFieldErrors(d){(d||[]).forEach(x=>{const el=document.querySelector(`[data-err="${x.field}"]`);if(el)el.textContent=x.message;});}
+
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();clearErrors();
+    btn.disabled=true;const orig=btn.innerHTML;btn.innerHTML="Отправляем…";
+    const $=id=>document.getElementById(id);
+    const payload={name:$("name").value.trim(),email:$("email").value.trim(),phone:$("phone").value.trim(),
+      comment:$("comment").value.trim(),website:form.elements["website"].value};
+    try{
+      const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+      const data=await res.json();
+      if(res.ok){
+        const a=data.analysis;
+        const pct=Math.round((a.sentiment_score+1)/2*100);
+        result.className="result ok show";
+        resultIn.innerHTML=`
+          <div class="res-head">✅ ${data.message}</div>
+          <div class="chips">
+            <span class="chip">${CAT[a.category]||a.category}</span>
+            <span class="chip">приоритет: ${a.priority}</span>
+            <span class="chip">AI: ${a.provider}</span>
+          </div>
+          <div class="meter-l"><span>негатив</span><span>тональность: ${SENT[a.sentiment]} (${a.sentiment_score})</span><span>позитив</span></div>
+          <div class="meter"><div class="mk" style="left:50%"></div></div>
+          <div class="reply"><b>Черновик ответа от AI</b>${a.suggested_reply}</div>
+          <div class="meta-line"><span>id: ${data.submission_id.slice(0,12)}…</span><span>req: ${data.request_id}</span><span>⏱ ${data.processing_ms}ms</span></div>`;
+        requestAnimationFrame(()=>{const mk=resultIn.querySelector(".mk");if(mk)mk.style.left=pct+"%";});
+        form.reset();
+      }else{
+        result.className="result err show";
+        resultIn.innerHTML=`<div class="res-head">⚠️ ${data.message||"Ошибка отправки"}</div>`;
+        showFieldErrors(data.details);
+      }
+    }catch(err){
+      result.className="result err show";
+      resultIn.innerHTML=`<div class="res-head">⚠️ Сеть недоступна</div><p style="color:var(--muted);margin:0">Не удалось связаться с сервером. Попробуйте позже.</p>`;
+    }finally{btn.disabled=false;btn.innerHTML=orig;}
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "info": {
+    "name": "Developer Landing API",
+    "description": "Коллекция запросов к бэкенд-сервису лендинга разработчика.\n\nПеременная {{base_url}} по умолчанию http://localhost:8000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" }
+  ],
+  "item": [
+    {
+      "name": "POST /api/contact — валидное обращение (заказ проекта)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{base_url}}/api/contact", "host": ["{{base_url}}"], "path": ["api", "contact"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Иван Петров\",\n  \"email\": \"ivan@example.com\",\n  \"phone\": \"+7 999 123-45-67\",\n  \"comment\": \"Здравствуйте! Хочу заказать разработку backend API для маркетплейса, есть ТЗ и бюджет.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "POST /api/contact — позитивный отзыв",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{base_url}}/api/contact", "host": ["{{base_url}}"], "path": ["api", "contact"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Мария Соколова\",\n  \"email\": \"maria@example.com\",\n  \"phone\": \"+7 921 555-10-20\",\n  \"comment\": \"Спасибо за отличную работу, всё супер, очень понравился ваш подход!\"\n}"
+        }
+      }
+    },
+    {
+      "name": "POST /api/contact — ошибка валидации (422)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{base_url}}/api/contact", "host": ["{{base_url}}"], "path": ["api", "contact"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Я\",\n  \"email\": \"not-an-email\",\n  \"phone\": \"123\",\n  \"comment\": \"мало\"\n}"
+        }
+      }
+    },
+    {
+      "name": "GET /api/health",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/api/health", "host": ["{{base_url}}"], "path": ["api", "health"] }
+      }
+    },
+    {
+      "name": "GET /api/metrics",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{base_url}}/api/metrics", "host": ["{{base_url}}"], "path": ["api", "metrics"] }
+      }
+    }
+  ]
+}

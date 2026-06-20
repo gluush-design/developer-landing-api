@@ -1,0 +1,32 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Virtualenv / portable interpreter ---
+.venv/
+venv/
+env/
+python-portable/
+
+# --- Secrets ---
+.env
+
+# --- Runtime data (логи, заявки, метрики, rate-limit) ---
+data/logs/
+data/*.jsonl
+data/*.json
+!data/.gitkeep
+
+# --- OS / IDE ---
+.DS_Store
+.idea/
+.vscode/
+Thumbs.db
+
+# --- Артефакты распаковки ТЗ ---
+_unzip/
+_test.zip
