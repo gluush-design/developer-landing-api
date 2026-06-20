@@ -1,5 +1,12 @@
 # Developer Landing API
 
+> ### 🌐 Живое демо
+> - **Лендинг:** https://developer-landing-api-2v7y.onrender.com
+> - **Swagger (рабочий API):** https://developer-landing-api-2v7y.onrender.com/docs
+> - **Health:** https://developer-landing-api-2v7y.onrender.com/api/health
+>
+> Хостинг — Render (free). После простоя первый запрос холодный (~30–50 сек), дальше быстро.
+
 Бэкенд-сервис для лендинг-презентации разработчика: полноценный REST API формы
 обратной связи с **AI-анализом обращений**, файловым хранилищем, rate limiting,
 структурным логированием и автодокументацией OpenAPI. В комплекте — современный
